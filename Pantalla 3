@@ -1,0 +1,47 @@
+import streamlit as st
+from utils.afinidad import calcular_afinidad
+from datos.herramientas import df_herramientas
+
+def mostrar_pantalla_3(cambiar_pantalla):
+    st.title("🔧 Recomendaciones de Herramientas")
+    st.write("Basándonos en los parámetros seleccionados, aquí tienes las herramientas ideales para tus proyectos.")
+
+    # Recuperar los parámetros seleccionados
+    parametros = st.session_state.get("parametros", {})
+    if not parametros:
+        st.warning("⚠ No se encontraron parámetros guardados. Por favor, regresa a la Pantalla 1.")
+        if st.button("Regresar a Pantalla 1"):
+            cambiar_pantalla("pantalla_1")
+        return
+
+    # Calcular afinidad de herramientas
+    recomendaciones = calcular_afinidad(parametros, df_herramientas)
+
+    if not recomendaciones:
+        st.warning("No se encontraron herramientas relevantes para los parámetros seleccionados.")
+        if st.button("Regresar a Pantalla 2"):
+            cambiar_pantalla("pantalla_2")
+        return
+
+    # Mostrar la herramienta principal
+    herramienta_principal = recomendaciones[0]
+    st.header("🌟 Recomendación Principal")
+    st.subheader(herramienta_principal["nombre"])
+    st.write(herramienta_principal["descripcion"])
+    st.markdown(f"[Visitar herramienta]({herramienta_principal['url']})")
+
+    # Mostrar herramientas adicionales
+    if len(recomendaciones) > 1:
+        st.header("🔧 Otras Herramientas Recomendadas")
+        for herramienta in recomendaciones[1:4]:  # Máximo 3 alternativas
+            st.subheader(herramienta["nombre"])
+            st.write(herramienta["descripcion"])
+            st.markdown(f"[Visitar herramienta]({herramienta['url']})")
+
+    # Botón para regresar a Pantalla 2
+    if st.button("Regresar a Editar Prompt"):
+        cambiar_pantalla("pantalla_2")
+
+    # Botón para finalizar
+    if st.button("Finalizar"):
+        st.success("🎉 Gracias por usar el asistente. ¡Esperamos que disfrutes de las recomendaciones!")
