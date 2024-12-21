@@ -1,0 +1,24 @@
+import streamlit as st
+from pantallas.pantalla_1 import mostrar_pantalla_1
+from pantallas.pantalla_2 import mostrar_pantalla_2
+from pantallas.pantalla_3 import mostrar_pantalla_3
+
+def main():
+    # Inicializamos valores de estado
+    if 'pantalla_actual' not in st.session_state:
+        st.session_state['pantalla_actual'] = 'pantalla_1'
+
+    # Función para cambiar de pantalla
+    def cambiar_pantalla(nueva_pantalla):
+        st.session_state['pantalla_actual'] = nueva_pantalla
+
+    # Control del flujo entre pantallas
+    if st.session_state['pantalla_actual'] == 'pantalla_1':
+        mostrar_pantalla_1(cambiar_pantalla)
+    elif st.session_state['pantalla_actual'] == 'pantalla_2':
+        mostrar_pantalla_2(cambiar_pantalla)
+    elif st.session_state['pantalla_actual'] == 'pantalla_3':
+        mostrar_pantalla_3(cambiar_pantalla)
+
+if __name__ == "__main__":
+    main()
