@@ -1,0 +1,46 @@
+import streamlit as st
+
+def mostrar_pantalla_2(cambiar_pantalla):
+    st.title("📝 Prompt Generado")
+    st.write("Revisa y ajusta el prompt generado basado en los parámetros seleccionados.")
+
+    # Recuperar los parámetros seleccionados
+    parametros = st.session_state.get("parametros", {})
+    if not parametros:
+        st.warning("⚠ No se encontraron parámetros guardados. Por favor, regresa a la Pantalla 1.")
+        if st.button("Regresar a Pantalla 1"):
+            cambiar_pantalla("pantalla_1")
+        return
+
+    # Generar el prompt inicial
+    prompt = (
+        f"Crea una imagen basada en la idea de '{parametros.get('idea_inicial', 'una idea creativa')}'. "
+        f"El propósito es '{parametros.get('proposito', 'un propósito general')}', con un estilo artístico de "
+        f"'{parametros.get('movimiento_estetico', 'moderno')}'. "
+        f"El plano fotográfico debe ser '{parametros.get('plano_fotografico', 'indeterminado')}', con iluminación "
+        f"'{parametros.get('iluminacion', 'natural')}' y una composición '{parametros.get('composicion', 'simétrica')}'. "
+        f"Detalles adicionales incluyen: '{parametros.get('efectos_visuales', 'sin efectos adicionales')}' y una paleta de colores "
+        f"'{parametros.get('paleta_colores', 'vibrante')}'."
+    )
+
+    # Mostrar el prompt en un área de texto editable
+    prompt_editado = st.text_area("Prompt Final:", value=prompt, height=200, key="prompt_generado")
+
+    # Botón para copiar el prompt al portapapeles
+    if st.button("Copiar al Portapapeles"):
+        st.session_state["prompt_copiado"] = prompt_editado
+        st.success("✅ Prompt copiado correctamente al portapapeles.")
+
+    # Botón para exportar el prompt como archivo .txt
+    if st.button("Exportar como .txt"):
+        with open("prompt_generado.txt", "w") as file:
+            file.write(prompt_editado)
+        st.success("📁 Prompt exportado como 'prompt_generado.txt'.")
+
+    # Botón para regresar a Pantalla 1
+    if st.button("Editar Opciones"):
+        cambiar_pantalla("pantalla_1")
+
+    # Botón para avanzar a Pantalla 3
+    if st.button("Ver Recomendaciones"):
+        cambiar_pantalla("pantalla_3")
