@@ -1,0 +1,89 @@
+import pandas as pd
+import streamlit as st
+
+# Módulo de afinidad
+from utils.afinidad import calcular_afinidad
+
+# Dataset enriquecido
+from datos.dataset_enriquecido import herramientas_data
+
+# Pantalla 1: Configuración de parámetros iniciales
+def pantalla_1(cambiar_pantalla):
+    st.title("Configuración de parámetros iniciales")
+
+    parametros = {
+        "proposito": st.selectbox("Selecciona un propósito", ["Publicidad", "Narrativas visuales", "Proyectos STEM", "Diseño gráfico"]),
+        "movimiento_estetico": st.selectbox("Selecciona un estilo artístico", ["Surrealismo moderno", "Arte atmosférico", "Arte técnico", "Minimalismo"]),
+        "plano_fotografico": st.selectbox("Selecciona un plano fotográfico", ["Primer Plano", "Plano medio", "Gran Plano General"]),
+        "iluminacion": st.selectbox("Selecciona un tipo de iluminación", ["Natural", "Iluminación dramática", "Iluminación uniforme", "Iluminación de estudio"])
+    }
+
+    if st.button("Continuar"):
+        st.session_state["parametros"] = parametros
+        cambiar_pantalla("pantalla_2")
+
+# Pantalla 2: Generación del prompt
+def pantalla_2(cambiar_pantalla):
+    st.title("Generación del Prompt")
+
+    parametros = st.session_state.get("parametros", {})
+    if not parametros:
+        st.warning("No se encontraron parámetros seleccionados.")
+        if st.button("Regresar a Pantalla 1"):
+            cambiar_pantalla("pantalla_1")
+        return
+
+    prompt = f"Crea una imagen que represente {parametros['proposito']} con un estilo {parametros['movimiento_estetico']}, fotografiado en {parametros['plano_fotografico']} bajo una iluminación {parametros['iluminacion']}."
+    st.text_area("Prompt Generado", value=prompt, height=150)
+
+    if st.button("Ver recomendaciones"):
+        cambiar_pantalla("pantalla_3")
+
+# Pantalla 3: Recomendaciones de herramientas
+def pantalla_3(cambiar_pantalla):
+    st.title("Recomendaciones de Herramientas")
+
+    parametros = st.session_state.get("parametros", {})
+    if not parametros:
+        st.warning("No se encontraron parámetros seleccionados.")
+        if st.button("Regresar a Pantalla 1"):
+            cambiar_pantalla("pantalla_1")
+        return
+
+    resultados = calcular_afinidad(parametros, herramientas_data)
+
+    if resultados:
+        st.subheader("Herramienta recomendada")
+        st.write(resultados[0]["nombre"])
+        st.write(resultados[0]["descripcion"])
+        st.markdown(f"[Acceder a la herramienta]({resultados[0]['url']})")
+
+        st.subheader("Otras recomendaciones")
+        for herramienta in resultados[1:3]:
+            st.write(f"- {herramienta['nombre']}: {herramienta['descripcion']}")
+            st.markdown(f"[Acceder]({herramienta['url']})")
+    else:
+        st.warning("No se encontraron herramientas relevantes.")
+
+    if st.button("Finalizar"):
+        st.success("Gracias por usar el sistema de recomendaciones.")
+
+# Flujo principal
+def main():
+    if "pantalla_actual" not in st.session_state:
+        st.session_state["pantalla_actual"] = "pantalla_1"
+
+    def cambiar_pantalla(nueva_pantalla):
+        st.session_state["pantalla_actual"] = nueva_pantalla
+
+    pantalla_actual = st.session_state["pantalla_actual"]
+
+    if pantalla_actual == "pantalla_1":
+        pantalla_1(cambiar_pantalla)
+    elif pantalla_actual == "pantalla_2":
+        pantalla_2(cambiar_pantalla)
+    elif pantalla_actual == "pantalla_3":
+        pantalla_3(cambiar_pantalla)
+
+if __name__ == "__main__":
+    main()
