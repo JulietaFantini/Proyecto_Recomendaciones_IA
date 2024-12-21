@@ -1,0 +1,82 @@
+import streamlit as st
+from datos.estilos import df_estilos
+from datos.propositos import df_usos
+
+def mostrar_pantalla_1(cambiar_pantalla):
+    st.title("Asistente para Crear Imágenes con IA")
+    st.write("Configura los parámetros iniciales para personalizar tu imagen generada.")
+
+    # Idea inicial
+    st.header("¿Qué querés crear?")
+    idea_inicial = st.text_area(
+        "Describe tu idea principal",
+        placeholder="Escribe aquí lo que quieres que aparezca en tu imagen (opcional)",
+        help="Empieza con una idea general para tu imagen. Por ejemplo: un bosque mágico con luces bioluminiscentes."
+    )
+
+    # Propósito
+    st.header("¿Para qué usarás la imagen?")
+    categoria_proposito = st.selectbox(
+        "Selecciona una categoría de propósito:",
+        ["Selecciona una opción"] + df_usos["categoria"].tolist()
+    )
+    if categoria_proposito != "Selecciona una opción":
+        subcategorias_proposito = df_usos[df_usos["categoria"] == categoria_proposito]["subcategorias"].values[0]
+        proposito = st.selectbox(
+            "Selecciona un propósito específico:",
+            ["Selecciona una opción"] + subcategorias_proposito
+        )
+    else:
+        proposito = "No especificado"
+
+    # Estilo artístico
+    st.header("Elige un estilo artístico")
+    categoria_estilo = st.selectbox(
+        "Selecciona una categoría de estilo:",
+        ["Selecciona una opción"] + df_estilos["categoria"].tolist()
+    )
+    if categoria_estilo != "Selecciona una opción":
+        subcategorias_estilo = df_estilos[df_estilos["categoria"] == categoria_estilo]["subcategorias"].values[0]
+        estilo_artistico = st.selectbox(
+            "Selecciona un estilo artístico específico:",
+            ["Selecciona una opción"] + subcategorias_estilo
+        )
+    else:
+        estilo_artistico = "No especificado"
+
+    # Detalles avanzados
+    with st.expander("Ajustes avanzados (Opcional)"):
+        plano_fotografico = st.selectbox(
+            "Plano fotográfico:",
+            ["No especificado", "Primer plano", "Plano medio", "Plano general"]
+        )
+        iluminacion = st.selectbox(
+            "Tipo de iluminación:",
+            ["No especificado", "Natural", "Dramática", "Suave", "Contraluz"]
+        )
+        composicion = st.selectbox(
+            "Composición:",
+            ["No especificado", "Simétrica", "Asimétrica", "Regla de los tercios"]
+        )
+        efectos_visuales = st.text_input(
+            "Efectos visuales:",
+            placeholder="Ejemplo: Hologramas, Luces de neón"
+        )
+        paleta_colores = st.text_input(
+            "Paleta de colores:",
+            placeholder="Ejemplo: Vibrante, Monocromático"
+        )
+
+    # Botón para continuar
+    if st.button("Ver Prompt Generado"):
+        st.session_state["parametros"] = {
+            "idea_inicial": idea_inicial.strip(),
+            "proposito": proposito.strip(),
+            "movimiento_estetico": estilo_artistico.strip(),
+            "plano_fotografico": plano_fotografico,
+            "iluminacion": iluminacion,
+            "composicion": composicion,
+            "efectos_visuales": efectos_visuales.strip(),
+            "paleta_colores": paleta_colores.strip()
+        }
+        cambiar_pantalla("pantalla_2")
